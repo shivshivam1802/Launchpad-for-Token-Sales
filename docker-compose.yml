@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: launchpad-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: launchpad
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  hardhat:
+    image: node:18
+    container_name: launchpad-hardhat
+    working_dir: /usr/src/app
+    volumes:
+      - ./contracts:/usr/src/app
+    ports:
+      - "8545:8545"
+    command: sh -c "npm install && npx hardhat node"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: launchpad-backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/launchpad?schema=public
+      JWT_SECRET: super-secret-token-key-2026
+      RPC_URL: http://hardhat:8545
+      FACTORY_ADDRESS: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - hardhat
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: launchpad-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
