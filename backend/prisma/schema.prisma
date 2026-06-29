@@ -1,0 +1,107 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  PROJECT_OWNER
+  ADMIN
+}
+
+enum ProjectStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FROZEN
+}
+
+model User {
+  id            String   @id @default(uuid())
+  walletAddress String   @unique
+  nonce         String
+  role          Role     @default(USER)
+  username      String?
+  email         String?
+  kycVerified   Boolean  @default(false)
+  kycStatus     String   @default("NONE") // NONE, PENDING, VERIFIED, REJECTED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  projects      Project[]
+  referrals     Referral[] @relation("Referrer")
+  referees      Referral[] @relation("Referee")
+}
+
+model Project {
+  id             String        @id @default(uuid())
+  ownerId        String
+  owner          User          @relation(fields: [ownerId], references: [id])
+  name           String
+  ticker         String
+  logoUrl        String?
+  bannerUrl      String?
+  description    String
+  whitepaperUrl  String?
+  tokenomics     Json?         // e.g. { public: 30, staking: 20, team: 15, marketing: 15, treasury: 20 }
+  roadmap        Json?         // e.g. [{ quarter: "Q3 2026", goal: "Launch mainnet" }]
+  team           Json?         // e.g. [{ name: "Alice", role: "CEO" }]
+  websiteUrl     String?
+  twitterUrl     String?
+  telegramUrl    String?
+  githubUrl      String?
+  auditUrl       String?
+  status         ProjectStatus @default(PENDING)
+  contractAddress String?      @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model TokenSaleCache {
+  id             String   @id @default(uuid())
+  address        String   @unique
+  ownerAddress   String
+  saleToken      String
+  acceptedToken  String
+  rate           String   // Store large uint256 as string
+  softCap        String
+  hardCap        String
+  minBuy         String
+  maxBuy         String
+  startTime      DateTime
+  endTime        DateTime
+  totalRaised    String   @default("0")
+  totalTokensSold String   @default("0")
+  state          String   @default("Active") // Active, Paused, Success, Failed, Cancelled
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Referral {
+  id          String   @id @default(uuid())
+  referrerId  String
+  referrer    User     @relation("Referrer", fields: [referrerId], references: [id])
+  refereeId   String   @unique
+  referee     User     @relation("Referee", fields: [refereeId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model ProposalCache {
+  id          String   @id @default(uuid())
+  proposalId  Int      @unique
+  proposer    String
+  description String
+  startTime   Int
+  endTime     Int
+  forVotes    String   @default("0")
+  againstVotes String  @default("0")
+  executed    Boolean  @default(false)
+  state       String   @default("Active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
