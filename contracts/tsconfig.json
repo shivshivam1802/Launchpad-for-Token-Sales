@@ -8,8 +8,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": ".",
-    "ignoreDeprecations": "6.0"
+    "rootDir": "."
   },
   "include": ["./scripts/**/*", "./test/**/*", "./hardhat.config.ts"]
 }
