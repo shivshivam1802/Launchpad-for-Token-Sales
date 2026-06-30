@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { IndexerModule } from './indexer/indexer.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { IndexerModule } from './indexer/indexer.module';
     AnalyticsModule,
     IndexerModule,
   ],
+  controllers: [AppController],
   providers: [PrismaService],
 })
 export class AppModule {}
