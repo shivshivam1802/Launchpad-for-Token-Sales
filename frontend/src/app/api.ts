@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = '/api/backend';
 
 export interface ProjectData {
   id?: string;
@@ -12,11 +12,15 @@ export interface ProjectData {
   twitterUrl?: string;
   telegramUrl?: string;
   githubUrl?: string;
+  auditUrl?: string;
   status?: string;
   contractAddress?: string;
   tokenomics?: any;
   roadmap?: any;
   team?: any;
+  owner?: {
+    walletAddress: string;
+  };
 }
 
 export const launchpadApi = {

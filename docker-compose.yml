@@ -48,6 +48,8 @@ services:
       dockerfile: Dockerfile
     container_name: launchpad-frontend
     restart: always
+    environment:
+      BACKEND_URL: http://backend:3001
     ports:
       - "3000:3000"
     depends_on:
